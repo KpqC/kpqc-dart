@@ -1,0 +1,8 @@
+.dart_tool/
+.packages
+build/
+coverage/
+doc/api/
+pubspec.lock
+__pycache__/
+*.pyc
