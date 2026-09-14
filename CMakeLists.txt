@@ -107,7 +107,7 @@ endfunction()
 function(kpqc_add_ntruplus parameter)
     set(name "ntruplus${parameter}")
     set(root "${CMAKE_CURRENT_SOURCE_DIR}/vendor/NTRUplus/NTRU+${parameter}")
-    kpqc_object_library(${name} ${name} native/csrc/kem.c ${root}
+    kpqc_object_library(${name} ${name} native/csrc/kem_wrapper.c ${root}
         ${root}/kem.c
         ${root}/ntt.c
         ${root}/poly.c
@@ -124,7 +124,7 @@ function(kpqc_add_smaugt name mode)
                    poly toomcook verify fips202)
         list(APPEND sources "${root}/src/${source}.c")
     endforeach()
-    kpqc_object_library(${name} ${name} native/csrc/kem.c
+    kpqc_object_library(${name} ${name} native/csrc/kem_wrapper.c
         ${root}/include ${sources})
     target_compile_definitions(${name} PRIVATE SMAUGT_CONFIG_MODE=${mode})
     kpqc_rename_symbols(${name} ${name}

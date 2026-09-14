@@ -4,7 +4,7 @@ import 'package:native_toolchain_c/native_toolchain_c.dart';
 
 const _randomBytes = 'native/csrc/randombytes.c';
 const _signatureWrapper = 'native/csrc/signature.c';
-const _kemWrapper = 'native/csrc/kem.c';
+const _kemWrapper = 'native/csrc/kem_wrapper.c';
 
 const _signatureNames = <String>{
   'aimer128f',
