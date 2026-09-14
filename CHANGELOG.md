@@ -1,3 +1,7 @@
+## 0.1.1
+
+- Aligned the package description with sibling KpqC packages.
+
 ## 0.1.0
 
 - Initial release with AIMer and HAETAE signatures.

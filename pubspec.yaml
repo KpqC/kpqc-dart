@@ -1,6 +1,6 @@
 name: kpqc
-description: Dart FFI APIs for the AIMer, HAETAE, NTRU+, and SMAUG-T post-quantum cryptographic schemes.
-version: 0.1.0
+description: Dart FFI APIs for AIMer, HAETAE, NTRU+, and SMAUG-T.
+version: 0.1.1
 repository: https://github.com/osuolfou/kpqc-dart
 homepage: https://github.com/osuolfou/kpqc-dart
 
