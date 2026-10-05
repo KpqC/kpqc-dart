@@ -13,7 +13,7 @@
  * Arguments:   - uint8_t *output: pointer to output byte array
  *              - const public_key *pk: pointer to input public key
  *
- * Specification: Implements Algorithm 14, PackEncK.
+ * Specification: Implements @[KS X 123456, Algorithm 14, PackEncK]
  **************************************************/
 void pack_enck(uint8_t *output, const public_key *pk) {
     memcpy(output, pk->seed, sizeof(uint8_t) * SMAUGT_PKSEED_BYTES);
@@ -28,7 +28,7 @@ void pack_enck(uint8_t *output, const public_key *pk) {
  * Arguments:   - public_key *pk: pointer to output public key
  *              - const uint8_t *input: pointer to input byte array
  *
- * Specification: Implements Algorithm 15, UnpackEncK.
+ * Specification: Implements @[KS X 123456, Algorithm 15, UnpackEncK]
  **************************************************/
 void unpack_enck(public_key *pk, const uint8_t *input) {
     memcpy(pk->seed, input, SMAUGT_PKSEED_BYTES);
@@ -44,7 +44,7 @@ void unpack_enck(public_key *pk, const uint8_t *input) {
  * Arguments:   - uint8_t *output: pointer to output byte array
  *              - const secret_key *sk: pointer to input private key
  *
- * Specification: Implements Algorithm 16, PackDecK.
+ * Specification: Implements @[KS X 123456, Algorithm 16, PackDecK]
  **************************************************/
 void pack_deck(uint8_t *output, const secret_key *sk) {
     for (size_t i = 0; i < SMAUGT_K; ++i)
@@ -59,7 +59,7 @@ void pack_deck(uint8_t *output, const secret_key *sk) {
  * Arguments:   - secret_key *sk: pointer to output private key
  *              - const uint8_t *input: pointer to input byte array
  *
- * Specification: Implements Algorithm 17, UnpackDecK.
+ * Specification: Implements @[KS X 123456, Algorithm 17, UnpackDecK]
  **************************************************/
 void unpack_deck(secret_key *sk, const uint8_t *input) {
     for (size_t i = 0; i < SMAUGT_K; ++i)
@@ -74,7 +74,7 @@ void unpack_deck(secret_key *sk, const uint8_t *input) {
  * Arguments:   - uint8_t *bytes: pointer to output bytes
  *              - const poly *s: pointer to input poly in Sn
  *
- * Specification: Implements Algorithm 18, PackSPoly.
+ * Specification: Implements @[KS X 123456, Algorithm 18, PackSPoly]
  **************************************************/
 void pack_s_poly(uint8_t *bytes, const poly *s) {
     unsigned int i;
@@ -96,7 +96,7 @@ void pack_s_poly(uint8_t *bytes, const poly *s) {
  * Arguments:   - poly *s: pointer to output poly in Sn
  *              - const uint8_t *bytes: pointer to input bytes
  *
- * Specification: Implements Algorithm 19, UnpackSPoly.
+ * Specification: Implements @[KS X 123456, Algorithm 19, UnpackSPoly]
  **************************************************/
 void unpack_s_poly(poly *s, const uint8_t *bytes) {
     unsigned int i;
@@ -123,7 +123,7 @@ void unpack_s_poly(poly *s, const uint8_t *bytes) {
  * Arguments:   - uint8_t *output: pointer to output byte array
  *              - const ciphertext *ctxt: pointer to input ciphertext
  *
- * Specification: Implements Algorithm 20, PackCT.
+ * Specification: Implements @[KS X 123456, Algorithm 20, PackCT]
  * **************************************************/
 void pack_ct(uint8_t *output, const ciphertext *ctxt) {
     pack_ring_p_vec(output, &(ctxt->c1));
@@ -138,7 +138,7 @@ void pack_ct(uint8_t *output, const ciphertext *ctxt) {
  * Arguments:   - ciphertext *ctxt: pointer to output ciphertext
  *              - const uint8_t *input: pointer to input byte array
  *
- * Specification: Implements Algorithm 21, UnpackCT.
+ * Specification: Implements @[KS X 123456, Algorithm 21, UnpackCT]
  **************************************************/
 void unpack_ct(ciphertext *ctxt, const uint8_t *input) {
     unpack_ring_p_vec(&(ctxt->c1), input);

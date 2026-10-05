@@ -148,7 +148,8 @@ Iterable<CLibrary> kpqcLibraries(List<String> libraries) sync* {
       sources: [
         _signatureWrapper,
         _randomBytes,
-        '$root/aim2.c',
+        '$root/aim3.c',
+        '$root/field_common.c',
         '$root/hash.c',
         '$root/sign.c',
         '$root/tree.c',

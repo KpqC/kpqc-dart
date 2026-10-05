@@ -8,6 +8,27 @@ permissions:
   contents: read
 
 jobs:
+  known-answer-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: KpqC/kpqc-test-vectors
+          ref: 179dcc05ece2e22262cea1a61f3cdf1a5b08a304
+          path: kpqc-test-vectors
+      - name: Build native test library
+        run: |
+          cmake -S . -B build/kat \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DKPQC_TEST_ENTROPY=ON
+          cmake --build build/kat --parallel
+      - name: Validate all known-answer vectors
+        run: >-
+          python3 -B test/test_kat.py
+          build/kat/libkpqc_test.so
+          kpqc-test-vectors
+
   test:
     strategy:
       fail-fast: false
@@ -22,7 +43,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable

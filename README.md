@@ -24,6 +24,9 @@ build hooks. The legacy `dart compile exe` command does not bundle code assets.
 dart pub add kpqc
 ```
 
+KpqC 0.2.0 uses AIM3. AIMer keys and signatures from the 0.1.x AIM2 release
+are not compatible with this version.
+
 ## Available schemes
 
 | Algorithm | Type | Exports |
@@ -170,12 +173,12 @@ All sizes are in bytes.
 
 | Algorithm | Public key | Secret key | Signature |
 | --- | ---: | ---: | ---: |
-| `aimer128f` | 32 | 48 | 5,888 |
-| `aimer128s` | 32 | 48 | 4,160 |
-| `aimer192f` | 48 | 72 | 13,056 |
-| `aimer192s` | 48 | 72 | 9,120 |
-| `aimer256f` | 64 | 96 | 25,120 |
-| `aimer256s` | 64 | 96 | 17,056 |
+| `aimer128f` | 32 | 48 | 6,944 |
+| `aimer128s` | 32 | 48 | 4,704 |
+| `aimer192f` | 48 | 72 | 15,408 |
+| `aimer192s` | 48 | 72 | 10,320 |
+| `aimer256f` | 64 | 96 | 31,360 |
+| `aimer256s` | 64 | 96 | 20,224 |
 | `haetae2` | 992 | 1,408 | 1,474 |
 | `haetae3` | 1,472 | 2,112 | 2,349 |
 | `haetae5` | 2,080 | 2,752 | 2,948 |

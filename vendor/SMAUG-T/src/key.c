@@ -18,7 +18,7 @@
  * Arguments:   - polyvec A[SMAUGT_K]: pointer to output matrix A
  *              - const uint8_t seed[SMAUGT_PKSEED_BYTES]: pointer to input seed
  *
- * Specification: Implements Algorithm 1, ExpandA.
+ * Specification: Implements @[KS X 123456, Algorithm 1, ExpandA]
  **************************************************/
 void expand_A(polyvec A[SMAUGT_K], const uint8_t seed[SMAUGT_PKSEED_BYTES]) {
     unsigned int i, j;
@@ -65,7 +65,7 @@ void expand_b(polyvec *b, const polyvec A[SMAUGT_K], const polyvec *s,
  *              - const uint8_t seed[SMAUGT_CRYPTO_BYTES]: pointer to input seed
  *              of s(x)
  *
- * Specification: Implements Algorithm 2, ExpandS.
+ * Specification: Implements @[KS X 123456, Algorithm 2, ExpandS]
  **************************************************/
 void expand_s(secret_key *sk, const uint8_t seed[SMAUGT_CRYPTO_BYTES]) {
     unsigned int i, j;

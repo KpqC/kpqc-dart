@@ -53,7 +53,7 @@ static void load64_littleendian(uint64_t *out, size_t outlen,
  *              - const uint8_t *seed: pointer to input seed (of length
  *              SMAUGT_CRYPTO_BYTES+1)
  *
- * Specification: Implements Algorithm 11, dGaussianPoly.
+ * Specification: Implements @[KS X 123456, Algorithm 11, dGaussianPoly]
  **************************************************/
 int d_gaussian_poly(poly *op, const uint8_t *seed) {
     unsigned int i = 0, j = 0, k = 0;
@@ -99,7 +99,7 @@ int d_gaussian_poly(poly *op, const uint8_t *seed) {
  *              - const uint8_t seed[SMAUGT_CRYPTO_BYTES]: pointer to input byte
  * array
  *
- * Specification: Implements Algorithm 10, dGaussian.
+ * Specification: Implements @[KS X 123456, Algorithm 10, dGaussian]
  **************************************************/
 void d_gaussian(polyvec *op, const uint8_t seed[SMAUGT_CRYPTO_BYTES]) {
     unsigned int i;

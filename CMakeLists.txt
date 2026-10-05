@@ -77,7 +77,8 @@ function(kpqc_add_aimer parameter)
     set(root "${CMAKE_CURRENT_SOURCE_DIR}/vendor/AIMer")
     string(SUBSTRING "${parameter}" 0 3 field_size)
     kpqc_object_library(${name} ${name} native/csrc/signature.c ${root}
-        ${root}/aim2.c
+        ${root}/aim3.c
+        ${root}/field_common.c
         ${root}/hash.c
         ${root}/sign.c
         ${root}/tree.c

@@ -1,15 +1,7 @@
+#include "util.h"
 #include <string.h>
 #include "symmetric.h"
 #include "fips202/fips202.h"
-
-#define HASH_F_INBYTES  (NTRUPLUS_POLYBYTES)
-#define HASH_F_OUTBYTES (32)
-
-#define HASH_G_INBYTES  (NTRUPLUS_POLYBYTES)
-#define HASH_G_OUTBYTES (NTRUPLUS_N / 4)
-
-#define HASH_H_INBYTES  (NTRUPLUS_N / 8 + NTRUPLUS_SYMBYTES)
-#define HASH_H_OUTBYTES (NTRUPLUS_SSBYTES + NTRUPLUS_N / 4)
 
 void hash_f(uint8_t *buf, const uint8_t *msg)
 {
@@ -27,6 +19,7 @@ void hash_g(uint8_t *buf, const uint8_t *msg)
     data[0] = 0x01;
     memcpy(data + 1, msg, HASH_G_INBYTES);
     shake256(buf, HASH_G_OUTBYTES, data, HASH_G_INBYTES + 1);
+    secure_clear(data, sizeof data);
 }
 
 void hash_h(uint8_t *buf, const uint8_t *msg)
@@ -36,4 +29,5 @@ void hash_h(uint8_t *buf, const uint8_t *msg)
     data[0] = 0x02;
     memcpy(data + 1, msg, HASH_H_INBYTES);
     shake256(buf, HASH_H_OUTBYTES, data, HASH_H_INBYTES + 1);
+    secure_clear(data, sizeof data);
 }

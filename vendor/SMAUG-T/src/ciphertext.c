@@ -10,7 +10,7 @@
  * Arguments:   - polyvec *a: pointer to inout vector a. This should be
  *                already initialized.
  *
- * Specification: Implements Algorithm 12, Round1.
+ * Specification: Implements @[KS X 123456, Algorithm 12, Round1]
  **************************************************/
 #define round1 SMAUGT_NAMESPACE(round1)
 static inline void round1(polyvec *a) {
@@ -50,7 +50,7 @@ void computeC1(polyvec *c1, const polyvec A[SMAUGT_K], const polyvec *r) {
  * Arguments:   - poly *a: pointer to an input/output vector a. This should be
  *              already initialized.
  *
- * Specification: Implements Algorithm 13, Round2.
+ * Specification: Implements @[KS X 123456, Algorithm 13, Round2]
  **************************************************/
 #define round2 SMAUGT_NAMESPACE(round2)
 static inline void round2(poly *a) {

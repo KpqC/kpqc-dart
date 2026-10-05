@@ -16,8 +16,8 @@
 #define load16_littleendian SMAUGT_NAMESPACE(load16_littleendian)
 static void load16_littleendian(uint16_t *out, size_t outlen,
                                 const uint8_t *in) {
-    size_t pos = 0;
-    for (size_t i = 0; i < outlen; ++i) {
+    int pos = 0;
+    for (int i = 0; i < outlen; ++i) {
         out[i] = ((uint16_t)(in[pos])) | ((uint16_t)(in[pos + 1]) << 8);
         pos += 2;
     }
@@ -39,7 +39,7 @@ static void load16_littleendian(uint16_t *out, size_t outlen,
  *              - const uint16_t *seed: pointer to input seed (of length
  *              SMAUGT_HWTSEEDBYTES/2)
  *
- * Specification: Implements Algorithm 4, RejSampleMod.
+ * Specification: Implements @[KS X 123456, Algorithm 4, RejSampleMod]
  **************************************************/
 #define rej_sample_mod SMAUGT_NAMESPACE(rej_sample_mod)
 static int rej_sample_mod(int16_t si[SMAUGT_N], const uint16_t *rand) {
@@ -79,7 +79,7 @@ static int rej_sample_mod(int16_t si[SMAUGT_N], const uint16_t *rand) {
  *              - const uint8_t *seed: pointer to input seed (of length
  *              SMAUGT_CRYPTO_BYTES + 2)
  *
- * Specification: Implements Algorithm 3, HWT.
+ * Specification: Implements @[KS X 123456, Algorithm 3, HWT]
  **************************************************/
 int hwt(int16_t *res, const uint8_t *seed) {
     unsigned int i;

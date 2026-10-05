@@ -1,4 +1,3 @@
-/* kpqc-py: propagate OS entropy failures (2026-09-06). */
 // SPDX-License-Identifier: MIT
 
 #include "api.h"
@@ -25,7 +24,8 @@
  *
  * Return: 0 on success, 1 on failure
  *
- * Specification: Implements Algorithm 33, SMAUG-T.KEM.EncapInternal.
+ * Specification: Implements @[KS X 123456, Algorithm 33,
+ * SMAUG-T.KEM.EncapInternal]
  **************************************************/
 int crypto_kem_keypair_internal(uint8_t *pk, uint8_t *sk,
                                 uint8_t d[SMAUGT_T_BYTES],
@@ -51,7 +51,7 @@ int crypto_kem_keypair_internal(uint8_t *pk, uint8_t *sk,
  *
  * Return: 0 on success, 1 on failure
  *
- * Specification: Implements Algorithm 30, SMAUG-T.KEM.KeyGen.
+ * Specification: Implements @[KS X 123456, Algorithm 30, SMAUG-T.KEM.KeyGen]
  **************************************************/
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
     int ret = 0;
@@ -81,7 +81,8 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
  *
  * Return: 0 on success, 1 on failure
  *
- * Specification: Implements Algorithm 34, SMAUG-T.KEM.EncapInternal.
+ * Specification: Implements @[KS X 123456, Algorithm 34,
+ * SMAUG-T.KEM.EncapInternal]
  **************************************************/
 int crypto_kem_enc_internal(uint8_t *ctxt, uint8_t *ss, const uint8_t *pk,
                             const uint8_t *mu) {
@@ -111,7 +112,7 @@ int crypto_kem_enc_internal(uint8_t *ctxt, uint8_t *ss, const uint8_t *pk,
  *
  * Return: 0 on success, 1 on failure
  *
- * Specification: Implements Algorithm 31, SMAUG-T.KEM.Encap.
+ * Specification: Implements @[KS X 123456, Algorithm 31, SMAUG-T.KEM.Encap]
  **************************************************/
 int crypto_kem_enc(uint8_t *ctxt, uint8_t *ss, const uint8_t *pk) {
     int ret = 0;
@@ -136,7 +137,8 @@ int crypto_kem_enc(uint8_t *ctxt, uint8_t *ss, const uint8_t *pk) {
  *
  * Return: 0 on success, 1 on failure
  *
- * Specification: Implements Algorithm 35, SMAUG-T.KEM.DecapInternal.
+ * Specification: Implements @[KS X 123456, Algorithm 35,
+ * SMAUG-T.KEM.DecapInternal]
  **************************************************/
 int crypto_kem_dec_internal(uint8_t *ss, const uint8_t *ctxt,
                             const uint8_t *sk) {
@@ -185,7 +187,7 @@ int crypto_kem_dec_internal(uint8_t *ss, const uint8_t *ctxt,
  *
  * Return: 0 on success, 1 on failure
  *
- * Specification: Implements Algorithm 32, SMAUG-T.KEM.Decap.
+ * Specification: Implements @[KS X 123456, Algorithm 32, SMAUG-T.KEM.Decap]
  **************************************************/
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ctxt, const uint8_t *sk) {
     int ret = 0;

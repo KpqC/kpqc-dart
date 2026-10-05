@@ -1,53 +1,20 @@
 # Third-party notices
 
-The native sources compiled by this package contain code from the following KpqC
-reference implementations:
+This package includes code from the following upstream reference
+implementations:
 
-- AIMer reference implementation, by the AIMer team / Samsung SDS
-- HAETAE reference implementation, Copyright (c) 2026 Team HAETAE
-- NTRU+ reference implementation, Copyright (c) 2024–2026 NTRU+ TEAM
-- SMAUG-T reference implementation, Copyright (c) 2026 Team SMAUG-T
+- [AIMer](https://github.com/samsungsds-opensource/AIMer/tree/5f786ccd572d7bc2f92cf9f662e2c6cab2c45fa2), Copyright (c) 2022–2026 SAMSUNG SDS
+- [HAETAE](https://github.com/CryptoLabInc/HAETAE/tree/3130c9e26670a3406af31e2aa73ef73b223acf49), Copyright (c) 2026 Team HAETAE
+- [NTRU+](https://github.com/ntruplus/ntruplus/tree/9b607231246fc2eb8b93634ff4bb94ecf1f62c75), Copyright (c) 2024–2026 NTRU+ TEAM
+- [SMAUG-T](https://github.com/CryptoLabInc/SMAUG-T/tree/3cd19f3c8531a95c06010846a832b0e8ece4f939), Copyright (c) 2026 Team SMAUG-T
 
-These components are distributed under the MIT License. Full original license
-texts are included in the package source distribution.
+These components are distributed under the MIT License. Their original license
+texts are included under `vendor/` and with the package.
 
-Imported on 2026-09-06. `vendor/SOURCES.json` records the SHA-256 of each
-source file before the shared KpqC binding adaptations, under its destination
-path. Original NIST notices in AIMer headers are preserved; we acknowledge
-NIST as the source of the software identified by those notices.
+## Local adaptations
 
-The SHA-3/SHAKE code is based on public-domain implementations by Ronny Van
-Keer and on TweetFips202 by Gilles Van Assche, Daniel J. Bernstein and Peter
-Schwabe.
-
-## Source and Dart binding adaptations
-
-- Production entropy uses operating-system random-number sources through
-  `native/csrc/randombytes.c`. Upstream RNG/CTR-DRBG/AES implementations and
-  benchmark/KAT executables are not compiled or shipped as runtime components.
-- AIMer, HAETAE, NTRU+, and SMAUG-T public operations check RNG return codes.
-  NTRU+ RNG declarations return `int` to propagate failure. The optional
-  random-seed branch in SMAUG-T's `indcpa_enc` also stops on RNG failure.
-- AIMer and NTRU+ SHA-3/SHAKE contexts use embedded storage and wipe it on
-  release, avoiding process termination when heap allocation fails. AIMer
-  signing and verification allocation failures propagate to Dart as
-  `KpqCException`.
-- The imported SMAUG-T sources include full-vector initialization in `key.c`,
-  corrected output indexing in `dg.c`, and the correct output buffer size in
-  `packring.c`.
-- Unused HAETAE helper code and local variables were removed, and a SMAUG-T
-  loop counter was changed to `size_t` to match its bound.
-- Parameter sets are built as separate Dart native assets with their upstream
-  configuration macros and isolated C symbols. The binding validates input
-  sizes before entering C and wipes unpublished outputs on failure.
-
-The bundled implementations are the same adapted cores used to generate the
-npm package's JavaScript runtime.
-
-## Known-answer tests
-
-`test/kat` contains the first KAT record for every parameter set. AIMer,
-HAETAE, and NTRU+ records come from their reference implementations. SMAUG-T
-records reflect the documented source fixes also used by the npm and PyPI
-packages. The tests reproduce the NIST AES-256 CTR DRBG and compare keys,
-signatures, ciphertexts, and shared secrets byte-for-byte.
+KpqC replaces reference test randomness with operating-system entropy,
+propagates failures across the native boundary, and isolates symbols for each
+parameter set. SHA-3 contexts use embedded storage and sensitive state is
+cleared where the native API permits. The AIMer NIST notice is preserved in
+the vendored license; NIST is acknowledged as the source identified there.

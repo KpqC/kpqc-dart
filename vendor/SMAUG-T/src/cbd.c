@@ -24,7 +24,7 @@ static uint32_t load24_littleendian(const uint8_t x[3]) {
  *              - const uint8_t buf[SMAUGT_CBDSEED_BYTES]: pointer to input byte
  *              array
  *
- * Specification: Implements Algorithm 7, spCBD1.
+ * Specification: Implements @[KS X 123456, Algorithm 7, spCBD1]
  **************************************************/
 #define sp_cbd1 SMAUGT_NAMESPACE(sp_cbd1)
 static void sp_cbd1(poly *r, const uint8_t buf[SMAUGT_CBDSEED_BYTES]) {
@@ -81,7 +81,7 @@ static uint32_t load32_littleendian(const uint8_t x[4]) {
  *              - const uint8_t buf[SMAUGT_CBDSEED_BYTES]: pointer to input byte
  *              array
  *
- * Specification: Implements Algorithm 9, CBD.
+ * Specification: Implements @[KS X 123456, Algorithm 9, CBD]
  **************************************************/
 #define cbd SMAUGT_NAMESPACE(cbd)
 static void cbd(poly *r, const uint8_t buf[SMAUGT_CBDSEED_BYTES]) {
@@ -113,7 +113,7 @@ static void cbd(poly *r, const uint8_t buf[SMAUGT_CBDSEED_BYTES]) {
  *              - const uint8_t buf[SMAUGT_CBDSEED_BYTES]: pointer to input byte
  *              array
  *
- * Specification: Implements Algorithm 8, spCBD2.
+ * Specification: Implements @[KS X 123456, Algorithm 8, spCBD2]
  **************************************************/
 #define sp_cbd2 SMAUGT_NAMESPACE(sp_cbd2)
 static void sp_cbd2(poly *r, const uint8_t buf[SMAUGT_CBDSEED_BYTES]) {
@@ -146,7 +146,7 @@ static void sp_cbd2(poly *r, const uint8_t buf[SMAUGT_CBDSEED_BYTES]) {
  *              - const uint8_t buf[SMAUGT_CBDSEED_BYTES]: pointer to input byte
  *              array
  *
- * Specification: Implements Algorithm 6, spCBD.
+ * Specification: Implements @[KS X 123456, Algorithm 6, spCBD]
  **************************************************/
 void sp_cbd(poly *r, const uint8_t buf[SMAUGT_CBDSEED_BYTES]) {
 #if SMAUGT_MODE == SMAUGT_MODE1 || SMAUGT_MODE == SMAUGT_MODET

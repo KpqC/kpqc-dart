@@ -104,8 +104,9 @@ static inline int16_t fqmul(int16_t a, int16_t b)
 /*************************************************
 * Name:        fqinv
 *
-* Description: Computes the multiplicative inverse of a value in the
-*              finite field Z_q.
+* Description: Computes the multiplicative inverse in Z_q using Fermat's
+*              little theorem. The exponent q-2 = 3455 is evaluated using
+*              a shortest addition chain of length 15 (OEIS A003313).
 *
 * Arguments:   - int16_t a: input value a mod q
 *
@@ -113,32 +114,27 @@ static inline int16_t fqmul(int16_t a, int16_t b)
 **************************************************/
 static inline int16_t fqinv(int16_t a)
 {
-	int16_t t1, t2, t3;
+	int16_t t0, t1;
 
-	t1 = fqmul(a, a);    // 10
-	t2 = fqmul(t1, t1);  // 100
-	t2 = fqmul(t2, t2);  // 1000
-	t3 = fqmul(t2, t2);  // 10000
+	t0 = fqmul(a, a);    // 10
+	t0 = fqmul(t0, t0);  // 100
+	t0 = fqmul(t0, t0);  // 1000
+	t0 = fqmul(t0, t0);  // 10000
+	t1 = fqmul(t0, a);   // 10001
 
-	t1 = fqmul(t1, t2);  // 1010
+	t0 = fqmul(t0, t0);  // 100000
+	t0 = fqmul(t0, t0);  // 1000000
+	t0 = fqmul(t0, t0);  // 10000000
+	t1 = fqmul(t0, t1);  // 10010001
 
-	t2 = fqmul(t1, t3);  // 11010
-	t2 = fqmul(t2, t2);  // 110100
-	t2 = fqmul(t2, a);   // 110101
+	t0 = fqmul(t1, t0);  // 100010001
+	t1 = fqmul(t0, t1);  // 110100010
+	t1 = fqmul(t1, t0);  // 1010110011
+	t0 = fqmul(t1, t1);  // 10101100110
+	t0 = fqmul(t0, t0);  // 101011001100
+	t0 = fqmul(t0, t1);  // 110101111111
 
-	t1 = fqmul(t1, t2);  // 111111
-
-	t2 = fqmul(t2, t2);  // 1101010
-	t2 = fqmul(t2, t2);  // 11010100
-	t2 = fqmul(t2, t2);  // 110101000
-	t2 = fqmul(t2, t2);  // 1101010000
-	t2 = fqmul(t2, t2);  // 11010100000
-	t2 = fqmul(t2, t2);  // 110101000000
-	t2 = fqmul(t2, t1);  // 110101111111
-
-	t2 = fqmul(NTRUPLUS_RINV, t2);
-
-	return t2;
+	return fqmul(NTRUPLUS_RINV, t0);
 }
 
 /*************************************************
@@ -331,19 +327,19 @@ int baseinv(int16_t r[4], const int16_t a[4], const int16_t zeta)
 **************************************************/
 void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t zeta)
 {
-	r[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]); // R^-1
-	r[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);           // R^-1
-	r[2] = montgomery_reduce(a[3]*b[3]);                     // R^-1
+	int16_t t0 = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]); // R^-1
+	int16_t t1 = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);           // R^-1
+	int16_t t2 = montgomery_reduce(a[3]*b[3]);                     // R^-1
 
-	r[0] = montgomery_reduce(r[0]*zeta+a[0]*b[0]);  				   // R^-1
-	r[1] = montgomery_reduce(r[1]*zeta+a[0]*b[1]+a[1]*b[0]); 		   // R^-1
-	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]); // R^-1
-	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
+	int16_t c0 = montgomery_reduce(t0*zeta+a[0]*b[0]);                       // R^-1
+	int16_t c1 = montgomery_reduce(t1*zeta+a[0]*b[1]+a[1]*b[0]);             // R^-1
+	int16_t c2 = montgomery_reduce(t2*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);   // R^-1
+	int16_t c3 = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
 
-	r[0] = montgomery_reduce(r[0]*NTRUPLUS_RSQ); // R^0
-	r[1] = montgomery_reduce(r[1]*NTRUPLUS_RSQ); // R^0
-	r[2] = montgomery_reduce(r[2]*NTRUPLUS_RSQ); // R^0
-	r[3] = montgomery_reduce(r[3]*NTRUPLUS_RSQ); // R^0
+	r[0] = montgomery_reduce(c0*NTRUPLUS_RSQ); // R^0
+	r[1] = montgomery_reduce(c1*NTRUPLUS_RSQ); // R^0
+	r[2] = montgomery_reduce(c2*NTRUPLUS_RSQ); // R^0
+	r[3] = montgomery_reduce(c3*NTRUPLUS_RSQ); // R^0
 }
 
 /*************************************************
@@ -363,17 +359,17 @@ void basemul(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t
 **************************************************/
 void basemul_add(int16_t r[4], const int16_t a[4], const int16_t b[4], const int16_t c[4], const int16_t zeta)
 {
-	r[0] = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]); // R^-1
-	r[1] = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);           // R^-1
-	r[2] = montgomery_reduce(a[3]*b[3]);                     // R^-1
+	int16_t t0 = montgomery_reduce(a[1]*b[3]+a[2]*b[2]+a[3]*b[1]); // R^-1
+	int16_t t1 = montgomery_reduce(a[2]*b[3]+a[3]*b[2]);           // R^-1
+	int16_t t2 = montgomery_reduce(a[3]*b[3]);                     // R^-1
 
-	r[0] = montgomery_reduce(r[0]*zeta+a[0]*b[0]);  				   // R^-1
-	r[1] = montgomery_reduce(r[1]*zeta+a[0]*b[1]+a[1]*b[0]); 		   // R^-1
-	r[2] = montgomery_reduce(r[2]*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]); // R^-1
-	r[3] = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
+	int16_t c0 = montgomery_reduce(t0*zeta+a[0]*b[0]);                       // R^-1
+	int16_t c1 = montgomery_reduce(t1*zeta+a[0]*b[1]+a[1]*b[0]);             // R^-1
+	int16_t c2 = montgomery_reduce(t2*zeta+a[0]*b[2]+a[1]*b[1]+a[2]*b[0]);   // R^-1
+	int16_t c3 = montgomery_reduce(a[0]*b[3]+a[1]*b[2]+a[2]*b[1]+a[3]*b[0]); // R^-1
 
-	r[0] = montgomery_reduce(c[0]*NTRUPLUS_R + r[0]*NTRUPLUS_RSQ); // R^0
-	r[1] = montgomery_reduce(c[1]*NTRUPLUS_R + r[1]*NTRUPLUS_RSQ); // R^0
-	r[2] = montgomery_reduce(c[2]*NTRUPLUS_R + r[2]*NTRUPLUS_RSQ); // R^0
-	r[3] = montgomery_reduce(c[3]*NTRUPLUS_R + r[3]*NTRUPLUS_RSQ); // R^0
+	r[0] = montgomery_reduce(c[0]*NTRUPLUS_R + c0*NTRUPLUS_RSQ); // R^0
+	r[1] = montgomery_reduce(c[1]*NTRUPLUS_R + c1*NTRUPLUS_RSQ); // R^0
+	r[2] = montgomery_reduce(c[2]*NTRUPLUS_R + c2*NTRUPLUS_RSQ); // R^0
+	r[3] = montgomery_reduce(c[3]*NTRUPLUS_R + c3*NTRUPLUS_RSQ); // R^0
 }

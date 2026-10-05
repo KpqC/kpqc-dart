@@ -19,7 +19,7 @@
  *              - uint8_t *seed: pointer to input seed (of length
  * SMAUGT_DELTA_BYTES)
  *
- * Specification: Implements Algorithm 5, ExpandR.
+ * Specification: Implements @[KS X 123456, Algorithm 5, ExpandR]
  **************************************************/
 void expand_r(polyvec *r, const uint8_t *seed) {
     unsigned int i;
@@ -49,7 +49,7 @@ void expand_r(polyvec *r, const uint8_t *seed) {
  *              private key
  *              - uint8_t seed[SMAUGT_CRYPTO_BYTES]: pointer to input seed
  *
- * Specification: Implements Algorithm 25, SMAUGT-T.PKE.KeyGen.
+ * Specification: Implements @[KS X 123456, Algorithm 25, SMAUGT-T.PKE.KeyGen]
  **************************************************/
 void indcpa_keypair(uint8_t pk[SMAUGT_PUBLICKEY_BYTES],
                     uint8_t sk[SMAUGT_PKE_SECRETKEY_BYTES],
@@ -94,7 +94,7 @@ void indcpa_keypair(uint8_t pk[SMAUGT_PUBLICKEY_BYTES],
  *              message
  *              - const uint8_t seed[SMAUGT_DELTA_BYTES]: pointer to input seed
  *
- * Specification: Implements Algorithm 26, SMAUGT-T.PKE.Enc.
+ * Specification: Implements @[KS X 123456, Algorithm 26, SMAUGT-T.PKE.Enc]
  **************************************************/
 void indcpa_enc(uint8_t ctxt[SMAUGT_CIPHERTEXT_BYTES],
                 const uint8_t pk[SMAUGT_PUBLICKEY_BYTES],
@@ -110,7 +110,7 @@ void indcpa_enc(uint8_t ctxt[SMAUGT_CIPHERTEXT_BYTES],
     memset(&r, 0, sizeof(polyvec));
 
     if (seed == NULL)
-        { if (randombytes(seed_r, SMAUGT_DELTA_BYTES) != 0) return; }
+        randombytes(seed_r, SMAUGT_DELTA_BYTES);
     else
         cmov(seed_r, seed, SMAUGT_DELTA_BYTES, 1);
     expand_r(&r, seed_r);
@@ -139,7 +139,7 @@ void indcpa_enc(uint8_t ctxt[SMAUGT_CIPHERTEXT_BYTES],
  *              - const uint8_t ctxt[SMAUGT_CIPHERTEXT_BYTES]: pointer to input
  *              ciphertext
  *
- * Specification: Implements Algorithm 28, SMAUGT-T.PKE.Dec.
+ * Specification: Implements @[KS X 123456, Algorithm 28, SMAUGT-T.PKE.Dec]
  **************************************************/
 void indcpa_dec(uint8_t mu[SMAUGT_MSG_BYTES],
                 const uint8_t sk[SMAUGT_PKE_SECRETKEY_BYTES],

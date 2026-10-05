@@ -1,3 +1,4 @@
+#include "util.h"
 #include <stdint.h>
 #include <string.h>
 #include "params.h"
@@ -42,7 +43,6 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 {
 	int16_t t[2];
 
-	#pragma GCC unroll 2
 	for(size_t i = 0; i < NTRUPLUS_N/2; i++)
 	{
 		t[0] = a->coeffs[2*i];
@@ -65,14 +65,25 @@ void poly_tobytes(uint8_t r[NTRUPLUS_POLYBYTES], const poly *a)
 * Arguments:   - poly *r:          pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
 *                                  (of NTRUPLUS_POLYBYTES bytes)
+*
+* Returns 0 on success, 1 if any coefficient is greater than or equal to q.
 **************************************************/
-void poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
+int poly_frombytes(poly *r, const uint8_t a[NTRUPLUS_POLYBYTES])
 {
+	uint32_t fail = 0;
+
 	for(size_t i = 0; i < NTRUPLUS_N/2; i++)
 	{
-		r->coeffs[2*i]   = ((a[3*i+0] >> 0) | ((uint16_t)a[3*i+1] << 8)) & 0xFFF;
-		r->coeffs[2*i+1] = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
+		const uint16_t t0 = ((a[3*i+0] >> 0) | ((uint16_t)a[3*i+1] << 8)) & 0xFFF;
+		const uint16_t t1 = ((a[3*i+1] >> 4) | ((uint16_t)a[3*i+2] << 4)) & 0xFFF;
+
+		r->coeffs[2*i]   = t0;
+		r->coeffs[2*i+1] = t1;
+		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t0;
+		fail |= (uint32_t)(NTRUPLUS_Q - 1) - t1;
 	}
+
+	return fail >> 31;
 }
 
 /*************************************************
@@ -129,6 +140,7 @@ void poly_sotp_encode(poly *r, const uint8_t msg[NTRUPLUS_N/8], const uint8_t bu
     }
 
 	poly_cbd1(r, tmp);
+	secure_clear(tmp, sizeof tmp);
 }
 
 /*************************************************
@@ -147,7 +159,7 @@ int poly_sotp_decode(uint8_t msg[NTRUPLUS_N/8], const poly *a, const uint8_t buf
 	uint8_t t1, t2, t3;
 	uint16_t t4;
 	uint32_t r = 0;
-	uint8_t mask;
+	volatile uint8_t mask;
 
 	for(size_t i = 0; i < NTRUPLUS_N / 8; i++)
 	{
@@ -296,13 +308,12 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 *
 * Description: Multiply polynomial by 3; no modular reduction is performed
 *
-* Arguments: - poly *r: pointer to output polynomial
-*            - const poly *a: pointer to input polynomial
+* Arguments: - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_triple(poly *r, const poly *a) 
+void poly_triple(poly *r)
 {
 	for(int i = 0; i < NTRUPLUS_N; ++i)
-		r->coeffs[i] = 3*a->coeffs[i];
+		r->coeffs[i] *= 3;
 }
 
 /*************************************************
@@ -310,11 +321,10 @@ void poly_triple(poly *r, const poly *a)
 *
 * Description: Compute modulus 3 operation to polynomial
 *
-* Arguments: - poly *r: pointer to output polynomial
-*            - const poly *a: pointer to input polynomial
+* Arguments: - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_crepmod3(poly *r, const poly *a)
+void poly_crepmod3(poly *r)
 {
 	for(int i = 0; i < NTRUPLUS_N; i++)
-    	r->coeffs[i] = crepmod3(a->coeffs[i]);
+		r->coeffs[i] = crepmod3(r->coeffs[i]);
 }
