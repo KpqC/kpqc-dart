@@ -13,7 +13,7 @@ final _smaugt128 = KeyEncapsulationAlgorithm._(
   decapsulate: _smaugt128Decapsulate,
 );
 
-/// The SMAUG-T128 key-encapsulation parameter set.
+/// The SMAUG-T128 KEM parameter set.
 @RecordUse()
 KeyEncapsulationAlgorithm get smaugt128 => _smaugt128;
 
@@ -30,7 +30,7 @@ final _smaugt192 = KeyEncapsulationAlgorithm._(
   decapsulate: _smaugt192Decapsulate,
 );
 
-/// The SMAUG-T192 key-encapsulation parameter set.
+/// The SMAUG-T192 KEM parameter set.
 @RecordUse()
 KeyEncapsulationAlgorithm get smaugt192 => _smaugt192;
 
@@ -47,7 +47,7 @@ final _smaugt256 = KeyEncapsulationAlgorithm._(
   decapsulate: _smaugt256Decapsulate,
 );
 
-/// The SMAUG-T256 key-encapsulation parameter set.
+/// The SMAUG-T256 KEM parameter set.
 @RecordUse()
 KeyEncapsulationAlgorithm get smaugt256 => _smaugt256;
 
@@ -64,6 +64,6 @@ final _timer = KeyEncapsulationAlgorithm._(
   decapsulate: _timerDecapsulate,
 );
 
-/// The TiMER key-encapsulation parameter set.
+/// The TiMER KEM parameter set.
 @RecordUse()
 KeyEncapsulationAlgorithm get timer => _timer;

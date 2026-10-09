@@ -163,7 +163,7 @@ void main() {
     }
   });
 
-  group('key encapsulation', () {
+  group('KEM', () {
     for (final algorithm in _kems) {
       test('${algorithm.id} round trip', () {
         final keys = algorithm.generateKeyPair();

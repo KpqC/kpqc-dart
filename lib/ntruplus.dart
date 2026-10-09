@@ -1,4 +1,4 @@
-/// NTRU+ key-encapsulation parameter sets.
+/// NTRU+ KEM parameter sets.
 library;
 
 export 'src/types.dart'

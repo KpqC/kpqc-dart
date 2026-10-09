@@ -1,4 +1,4 @@
-/// SMAUG-T key-encapsulation parameter sets.
+/// SMAUG-T KEM parameter sets.
 library;
 
 export 'src/types.dart'

@@ -72,7 +72,7 @@ final class KeyPair {
       'KeyPair(publicKey: Uint8List(${publicKey.length}), secretKey: [REDACTED])';
 }
 
-/// The result of a key-encapsulation operation.
+/// The result of a KEM operation.
 final class EncapsulatedSecret {
   EncapsulatedSecret._(this.ciphertext, this.sharedSecret);
 
@@ -123,7 +123,7 @@ final class SignatureSizes {
       'signature: $signature)';
 }
 
-/// Byte sizes for a key-encapsulation parameter set.
+/// Byte sizes for a KEM parameter set.
 final class KemSizes {
   /// Creates a KEM size description.
   const KemSizes({
@@ -281,7 +281,7 @@ final class SignatureAlgorithm {
   String toString() => id;
 }
 
-/// A key-encapsulation algorithm and parameter set.
+/// A KEM algorithm and parameter set.
 final class KeyEncapsulationAlgorithm {
   const KeyEncapsulationAlgorithm._({
     required this.id,

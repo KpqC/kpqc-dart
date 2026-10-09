@@ -13,7 +13,7 @@ final _ntruplus768 = KeyEncapsulationAlgorithm._(
   decapsulate: _ntruplus768Decapsulate,
 );
 
-/// The NTRU+768 key-encapsulation parameter set.
+/// The NTRU+768 KEM parameter set.
 @RecordUse()
 KeyEncapsulationAlgorithm get ntruplus768 => _ntruplus768;
 
@@ -30,7 +30,7 @@ final _ntruplus864 = KeyEncapsulationAlgorithm._(
   decapsulate: _ntruplus864Decapsulate,
 );
 
-/// The NTRU+864 key-encapsulation parameter set.
+/// The NTRU+864 KEM parameter set.
 @RecordUse()
 KeyEncapsulationAlgorithm get ntruplus864 => _ntruplus864;
 
@@ -47,6 +47,6 @@ final _ntruplus1152 = KeyEncapsulationAlgorithm._(
   decapsulate: _ntruplus1152Decapsulate,
 );
 
-/// The NTRU+1152 key-encapsulation parameter set.
+/// The NTRU+1152 KEM parameter set.
 @RecordUse()
 KeyEncapsulationAlgorithm get ntruplus1152 => _ntruplus1152;
