@@ -1,3 +1,8 @@
+## 0.2.1
+
+- Standardized KEM terminology and pinned upstream source revisions.
+- Validated all supported parameter sets against the shared KAT repository.
+
 ## 0.2.0
 
 - Updated the bundled reference implementations.
