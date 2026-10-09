@@ -200,6 +200,22 @@ for an invalid signature. NTRU+ rejects an invalid ciphertext. SMAUG-T performs
 implicit rejection and returns a replacement secret instead; that value will
 not equal the sender's shared secret.
 
+## Known-answer tests
+
+The implementation is tested against all 1,600 KAT records in
+[KpqC/kpqc-test-vectors at commit d75490bf824f](https://github.com/KpqC/kpqc-test-vectors/tree/d75490bf824faa4b148cd0b901a2eb13198fe0da).
+On Linux, with `kpqc-test-vectors` checked out beside `kpqc-dart`, run:
+
+```sh
+cmake -S . -B build/kat \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DKPQC_TEST_ENTROPY=ON
+cmake --build build/kat --parallel
+python3 -B test/test_kat.py \
+  build/kat/libkpqc_test.so \
+  ../kpqc-test-vectors
+```
+
 ## Distribution
 
 The published package includes Dart libraries and the bundled native sources.

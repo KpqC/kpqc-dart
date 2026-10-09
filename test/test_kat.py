@@ -184,22 +184,31 @@ def main() -> None:
 
     library = ctypes.CDLL(str(Path(sys.argv[1]).resolve()))
     vector_root = Path(sys.argv[2]) if len(sys.argv) == 3 else None
+    expected_per_set = 100 if vector_root else 1
     checked = 0
     for parameters in SIGNATURES:
         name = parameters[0]
         path = ((vector_root / VECTOR_PATHS[name]) if vector_root
                 else KAT_DIR / f"{name}.rsp")
-        for vector in read_vectors(path):
+        vectors = read_vectors(path)
+        assert len(vectors) == expected_per_set, (
+            f"expected {expected_per_set} vectors for {name}, "
+            f"found {len(vectors)}")
+        for vector in vectors:
             check_signature(library, parameters, vector)
             checked += 1
     for parameters in KEMS:
         name = parameters[0]
         path = ((vector_root / VECTOR_PATHS[name]) if vector_root
                 else KAT_DIR / f"{name}.rsp")
-        for vector in read_vectors(path):
+        vectors = read_vectors(path)
+        assert len(vectors) == expected_per_set, (
+            f"expected {expected_per_set} vectors for {name}, "
+            f"found {len(vectors)}")
+        for vector in vectors:
             check_kem(library, parameters, vector)
             checked += 1
-    expected = 1_600 if vector_root else 16
+    expected = expected_per_set * (len(SIGNATURES) + len(KEMS))
     assert checked == expected, f"expected {expected} vectors, checked {checked}"
     print(f"{checked} known-answer vectors passed for all 16 parameter sets")
 
