@@ -8,13 +8,14 @@ final _smaugt128 = KeyEncapsulationAlgorithm._(
     ciphertext: 672,
     sharedSecret: 32,
   ),
-  keyPair: _smaugt128KeyPair,
-  encapsulate: _smaugt128Encapsulate,
-  decapsulate: _smaugt128Decapsulate,
+  keyPair: () => _smaugTKeyPair(smaugT128Parameters),
+  encapsulate: (publicKey) =>
+      _smaugTEncapsulate(smaugT128Parameters, publicKey),
+  decapsulate: (ciphertext, secretKey) =>
+      smaugTDecapsulate(smaugT128Parameters, ciphertext, secretKey),
 );
 
 /// The SMAUG-T128 KEM parameter set.
-@RecordUse()
 KeyEncapsulationAlgorithm get smaugt128 => _smaugt128;
 
 final _smaugt192 = KeyEncapsulationAlgorithm._(
@@ -25,13 +26,14 @@ final _smaugt192 = KeyEncapsulationAlgorithm._(
     ciphertext: 992,
     sharedSecret: 32,
   ),
-  keyPair: _smaugt192KeyPair,
-  encapsulate: _smaugt192Encapsulate,
-  decapsulate: _smaugt192Decapsulate,
+  keyPair: () => _smaugTKeyPair(smaugT192Parameters),
+  encapsulate: (publicKey) =>
+      _smaugTEncapsulate(smaugT192Parameters, publicKey),
+  decapsulate: (ciphertext, secretKey) =>
+      smaugTDecapsulate(smaugT192Parameters, ciphertext, secretKey),
 );
 
 /// The SMAUG-T192 KEM parameter set.
-@RecordUse()
 KeyEncapsulationAlgorithm get smaugt192 => _smaugt192;
 
 final _smaugt256 = KeyEncapsulationAlgorithm._(
@@ -42,13 +44,14 @@ final _smaugt256 = KeyEncapsulationAlgorithm._(
     ciphertext: 1376,
     sharedSecret: 32,
   ),
-  keyPair: _smaugt256KeyPair,
-  encapsulate: _smaugt256Encapsulate,
-  decapsulate: _smaugt256Decapsulate,
+  keyPair: () => _smaugTKeyPair(smaugT256Parameters),
+  encapsulate: (publicKey) =>
+      _smaugTEncapsulate(smaugT256Parameters, publicKey),
+  decapsulate: (ciphertext, secretKey) =>
+      smaugTDecapsulate(smaugT256Parameters, ciphertext, secretKey),
 );
 
 /// The SMAUG-T256 KEM parameter set.
-@RecordUse()
 KeyEncapsulationAlgorithm get smaugt256 => _smaugt256;
 
 final _timer = KeyEncapsulationAlgorithm._(
@@ -59,11 +62,27 @@ final _timer = KeyEncapsulationAlgorithm._(
     ciphertext: 608,
     sharedSecret: 32,
   ),
-  keyPair: _timerKeyPair,
-  encapsulate: _timerEncapsulate,
-  decapsulate: _timerDecapsulate,
+  keyPair: () => _smaugTKeyPair(timerParameters),
+  encapsulate: (publicKey) => _smaugTEncapsulate(timerParameters, publicKey),
+  decapsulate: (ciphertext, secretKey) =>
+      smaugTDecapsulate(timerParameters, ciphertext, secretKey),
 );
 
 /// The TiMER KEM parameter set.
-@RecordUse()
 KeyEncapsulationAlgorithm get timer => _timer;
+
+_KeyPairResult _smaugTKeyPair(SmaugTParameters parameters) {
+  final generated = smaugTGenerateKeyPair(parameters);
+  return (publicKey: generated.publicKey, secretKey: generated.secretKey);
+}
+
+_EncapsulationResult _smaugTEncapsulate(
+  SmaugTParameters parameters,
+  Uint8List publicKey,
+) {
+  final encapsulated = smaugTEncapsulate(parameters, publicKey);
+  return (
+    ciphertext: encapsulated.ciphertext,
+    sharedSecret: encapsulated.sharedSecret,
+  );
+}

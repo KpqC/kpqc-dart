@@ -2,13 +2,13 @@ part of 'types.dart';
 
 /// A failure reported by a bundled cryptographic implementation.
 final class KpqCException implements Exception {
-  /// Creates an exception for [operation] and the native [status] code.
+  /// Creates an exception for [operation] and its implementation [status].
   const KpqCException(this.operation, this.status);
 
   /// The operation that failed.
   final String operation;
 
-  /// The status returned by the native implementation.
+  /// The status reported by the underlying implementation.
   final int status;
 
   @override

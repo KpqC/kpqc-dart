@@ -1,49 +1,38 @@
-import 'dart:ffi';
 import 'dart:typed_data';
 
-import 'package:ffi/ffi.dart';
-import 'package:meta/meta.dart' show RecordUse;
+import 'internal/aimer_core.dart';
+import 'internal/haetae_core.dart';
+import 'internal/haetae_params.dart';
+import 'internal/ntruplus_core.dart';
+import 'internal/ntruplus_parameters.dart';
+import 'internal/smaugt_core.dart';
 
 part 'error.dart';
 part 'algorithms/aimer.dart';
 part 'algorithms/haetae.dart';
 part 'algorithms/ntruplus.dart';
 part 'algorithms/smaugt.dart';
-part 'native_bindings.dart';
 
-const _allocationFailure = -2;
-
-typedef _KeyPairFunction = int Function(
-  Pointer<Uint8> publicKey,
-  Pointer<Uint8> secretKey,
+typedef _KeyPairResult = ({Uint8List publicKey, Uint8List secretKey});
+typedef _EncapsulationResult = ({Uint8List ciphertext, Uint8List sharedSecret});
+typedef _KeyPairFunction = _KeyPairResult Function();
+typedef _SignFunction = Uint8List Function(
+  Uint8List message,
+  Uint8List secretKey,
+  Uint8List context,
 );
-typedef _SignFunction = int Function(
-  Pointer<Uint8> signature,
-  Pointer<Size> signatureLength,
-  Pointer<Uint8> message,
-  int messageLength,
-  Pointer<Uint8> context,
-  int contextLength,
-  Pointer<Uint8> secretKey,
+typedef _VerifyFunction = bool Function(
+  Uint8List message,
+  Uint8List signature,
+  Uint8List publicKey,
+  Uint8List context,
 );
-typedef _VerifyFunction = int Function(
-  Pointer<Uint8> signature,
-  int signatureLength,
-  Pointer<Uint8> message,
-  int messageLength,
-  Pointer<Uint8> context,
-  int contextLength,
-  Pointer<Uint8> publicKey,
+typedef _EncapsulateFunction = _EncapsulationResult Function(
+  Uint8List publicKey,
 );
-typedef _EncapsulateFunction = int Function(
-  Pointer<Uint8> ciphertext,
-  Pointer<Uint8> sharedSecret,
-  Pointer<Uint8> publicKey,
-);
-typedef _DecapsulateFunction = int Function(
-  Pointer<Uint8> sharedSecret,
-  Pointer<Uint8> ciphertext,
-  Pointer<Uint8> secretKey,
+typedef _DecapsulateFunction = Uint8List Function(
+  Uint8List ciphertext,
+  Uint8List secretKey,
 );
 
 /// A generated public and secret key pair.
@@ -173,22 +162,10 @@ final class SignatureAlgorithm {
 
   /// Generates a new public and secret key pair using operating-system entropy.
   KeyPair generateKeyPair() {
-    final publicKey = calloc<Uint8>(sizes.publicKey);
-    final secretKey = calloc<Uint8>(sizes.secretKey);
-    try {
-      final status = _keyPair(publicKey, secretKey);
-      if (status != 0) {
-        throw KpqCException('key generation', status);
-      }
-      return KeyPair._(
-        _copyFromNative(publicKey, sizes.publicKey),
-        _copyFromNative(secretKey, sizes.secretKey),
-      );
-    } finally {
-      _wipeNative(secretKey, sizes.secretKey);
-      calloc.free(secretKey);
-      calloc.free(publicKey);
-    }
+    final generated = _keyPair();
+    _requireCoreLength('public key', generated.publicKey, sizes.publicKey);
+    _requireCoreLength('secret key', generated.secretKey, sizes.secretKey);
+    return KeyPair._(generated.publicKey, generated.secretKey);
   }
 
   /// Creates a detached signature.
@@ -200,41 +177,9 @@ final class SignatureAlgorithm {
     final actualContext = context ?? Uint8List(0);
     _requireContext(actualContext);
 
-    final signature = calloc<Uint8>(sizes.signature);
-    final signatureLength = calloc<Size>();
-    final nativeMessage = _copyToNative(message);
-    final nativeContext = _copyToNative(actualContext);
-    final nativeSecretKey = _copyToNative(secretKey);
-    try {
-      final status = _sign(
-        signature,
-        signatureLength,
-        nativeMessage,
-        message.length,
-        nativeContext,
-        actualContext.length,
-        nativeSecretKey,
-      );
-      if (status != 0) {
-        throw KpqCException('signing', status);
-      }
-      final actualLength = signatureLength.value;
-      if (actualLength != sizes.signature) {
-        throw StateError(
-          'Cryptographic core returned an invalid signature size: '
-          'expected ${sizes.signature}, received $actualLength',
-        );
-      }
-      return _copyFromNative(signature, actualLength);
-    } finally {
-      _wipeNative(nativeSecretKey, secretKey.length);
-      _wipeNative(signature, sizes.signature);
-      calloc.free(nativeSecretKey);
-      calloc.free(nativeContext);
-      calloc.free(nativeMessage);
-      calloc.free(signatureLength);
-      calloc.free(signature);
-    }
+    final signature = _sign(message, secretKey, actualContext);
+    _requireCoreLength('signature', signature, sizes.signature);
+    return signature;
   }
 
   /// Verifies a detached signature.
@@ -251,30 +196,7 @@ final class SignatureAlgorithm {
     _requireContext(actualContext);
     if (signature.length != sizes.signature) return false;
 
-    final nativeSignature = _copyToNative(signature);
-    final nativeMessage = _copyToNative(message);
-    final nativeContext = _copyToNative(actualContext);
-    final nativePublicKey = _copyToNative(publicKey);
-    try {
-      final status = _verify(
-        nativeSignature,
-        signature.length,
-        nativeMessage,
-        message.length,
-        nativeContext,
-        actualContext.length,
-        nativePublicKey,
-      );
-      if (status == _allocationFailure) {
-        throw KpqCException('verification', status);
-      }
-      return status == 0;
-    } finally {
-      calloc.free(nativePublicKey);
-      calloc.free(nativeContext);
-      calloc.free(nativeMessage);
-      calloc.free(nativeSignature);
-    }
+    return _verify(message, signature, publicKey, actualContext);
   }
 
   @override
@@ -303,44 +225,33 @@ final class KeyEncapsulationAlgorithm {
 
   /// Generates a new public and secret key pair using operating-system entropy.
   KeyPair generateKeyPair() {
-    final publicKey = calloc<Uint8>(sizes.publicKey);
-    final secretKey = calloc<Uint8>(sizes.secretKey);
-    try {
-      final status = _keyPair(publicKey, secretKey);
-      if (status != 0) {
-        throw KpqCException('key generation', status);
-      }
-      return KeyPair._(
-        _copyFromNative(publicKey, sizes.publicKey),
-        _copyFromNative(secretKey, sizes.secretKey),
-      );
-    } finally {
-      _wipeNative(secretKey, sizes.secretKey);
-      calloc.free(secretKey);
-      calloc.free(publicKey);
-    }
+    final generated = _keyPair();
+    _requireCoreLength('public key', generated.publicKey, sizes.publicKey);
+    _requireCoreLength('secret key', generated.secretKey, sizes.secretKey);
+    return KeyPair._(generated.publicKey, generated.secretKey);
   }
 
   /// Encapsulates a fresh shared secret for [publicKey].
   EncapsulatedSecret encapsulate(Uint8List publicKey) {
     _requireLength('publicKey', publicKey.length, sizes.publicKey);
-    final ciphertext = calloc<Uint8>(sizes.ciphertext);
-    final sharedSecret = calloc<Uint8>(sizes.sharedSecret);
-    final nativePublicKey = _copyToNative(publicKey);
     try {
-      final status = _encapsulate(ciphertext, sharedSecret, nativePublicKey);
-      if (status != 0) {
-        throw KpqCException('encapsulation', status);
-      }
-      return EncapsulatedSecret._(
-        _copyFromNative(ciphertext, sizes.ciphertext),
-        _copyFromNative(sharedSecret, sizes.sharedSecret),
+      final encapsulated = _encapsulate(publicKey);
+      _requireCoreLength(
+        'ciphertext',
+        encapsulated.ciphertext,
+        sizes.ciphertext,
       );
-    } finally {
-      _wipeNative(sharedSecret, sizes.sharedSecret);
-      calloc.free(nativePublicKey);
-      calloc.free(sharedSecret);
-      calloc.free(ciphertext);
+      _requireCoreLength(
+        'shared secret',
+        encapsulated.sharedSecret,
+        sizes.sharedSecret,
+      );
+      return EncapsulatedSecret._(
+        encapsulated.ciphertext,
+        encapsulated.sharedSecret,
+      );
+    } on StateError {
+      throw KpqCException('encapsulation', -1);
     }
   }
 
@@ -351,25 +262,12 @@ final class KeyEncapsulationAlgorithm {
   Uint8List decapsulate(Uint8List ciphertext, Uint8List secretKey) {
     _requireLength('ciphertext', ciphertext.length, sizes.ciphertext);
     _requireLength('secretKey', secretKey.length, sizes.secretKey);
-    final sharedSecret = calloc<Uint8>(sizes.sharedSecret);
-    final nativeCiphertext = _copyToNative(ciphertext);
-    final nativeSecretKey = _copyToNative(secretKey);
     try {
-      final status = _decapsulate(
-        sharedSecret,
-        nativeCiphertext,
-        nativeSecretKey,
-      );
-      if (status != 0) {
-        throw KpqCException('decapsulation', status);
-      }
-      return _copyFromNative(sharedSecret, sizes.sharedSecret);
-    } finally {
-      _wipeNative(nativeSecretKey, secretKey.length);
-      _wipeNative(sharedSecret, sizes.sharedSecret);
-      calloc.free(nativeSecretKey);
-      calloc.free(nativeCiphertext);
-      calloc.free(sharedSecret);
+      final sharedSecret = _decapsulate(ciphertext, secretKey);
+      _requireCoreLength('shared secret', sharedSecret, sizes.sharedSecret);
+      return sharedSecret;
+    } on StateError {
+      throw KpqCException('decapsulation', -1);
     }
   }
 
@@ -397,17 +295,13 @@ void _requireContext(Uint8List context) {
   }
 }
 
-Pointer<Uint8> _copyToNative(Uint8List bytes) {
-  final pointer = calloc<Uint8>(bytes.isEmpty ? 1 : bytes.length);
-  if (bytes.isNotEmpty) pointer.asTypedList(bytes.length).setAll(0, bytes);
-  return pointer;
+void _requireCoreLength(String output, Uint8List bytes, int expected) {
+  if (bytes.length != expected) {
+    throw StateError(
+      'Cryptographic core returned an invalid $output size: '
+      'expected $expected, received ${bytes.length}',
+    );
+  }
 }
-
-Uint8List _copyFromNative(Pointer<Uint8> pointer, int length) =>
-    Uint8List.fromList(pointer.asTypedList(length));
 
 void _wipe(Uint8List bytes) => bytes.fillRange(0, bytes.length, 0);
-
-void _wipeNative(Pointer<Uint8> pointer, int length) {
-  if (length != 0) pointer.asTypedList(length).fillRange(0, length, 0);
-}

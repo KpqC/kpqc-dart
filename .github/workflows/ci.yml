@@ -10,6 +10,7 @@ permissions:
 jobs:
   known-answer-tests:
     runs-on: ubuntu-24.04
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v7
       - uses: actions/checkout@v7
@@ -17,33 +18,22 @@ jobs:
           repository: KpqC/kpqc-test-vectors
           ref: d75490bf824faa4b148cd0b901a2eb13198fe0da
           path: kpqc-test-vectors
-      - name: Build native test library
-        run: |
-          cmake -S . -B build/kat \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DKPQC_TEST_ENTROPY=ON
-          cmake --build build/kat --parallel
-      - name: Validate all known-answer vectors
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - run: dart pub get
+      - name: Validate portable Dart known-answer vectors
         env:
           KPQC_TEST_VECTORS: ${{ github.workspace }}/kpqc-test-vectors
         run: >-
-          python3 -B test/test_kat.py
-          build/kat/libkpqc_test.so
-          "$KPQC_TEST_VECTORS"
+          dart test
+          test/aimer_kat_test.dart
+          test/haetae_kat_test.dart
+          test/ntruplus_kat_test.dart
+          test/smaugt_kat_test.dart
 
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            kat-library: build/kat/libkpqc_test.so
-          - os: macos-latest
-            kat-library: build/kat/libkpqc_test.dylib
-          - os: windows-latest
-            kat-library: build/kat/Release/kpqc_test.dll
-    runs-on: ${{ matrix.os }}
-
+  quality:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: dart-lang/setup-dart@v1
@@ -53,14 +43,23 @@ jobs:
       - run: dart pub get
       - run: dart format --output=none --set-exit-if-changed .
       - run: dart analyze
+      - run: dart doc
+      - run: dart pub publish --dry-run
+      - run: dart compile js example/kpqc_example.dart -o build/kpqc_example.js
+
+  dart-vm-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - run: dart pub get
       - run: dart test
       - run: dart build cli --target example/kpqc_example.dart
-
-      - run: cmake -S . -B build/kat -DKPQC_TEST_ENTROPY=ON
-      - run: cmake --build build/kat --config Release
-      - run: python test/test_kat.py ${{ matrix.kat-library }}
-
-      - if: runner.os == 'Linux'
-        run: dart doc
-      - if: runner.os == 'Linux'
-        run: dart pub publish --dry-run

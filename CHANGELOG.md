@@ -1,3 +1,10 @@
+## Unreleased
+
+- Replaced the AIMer, HAETAE, NTRU+, and SMAUG-T native cores with portable
+  Dart implementations.
+- Removed the C toolchain, native-asset hooks, and runtime FFI dependency.
+- Added pure Dart validation for all 1,600 known-answer vectors.
+
 ## 0.2.1
 
 - Standardized KEM terminology and pinned upstream source revisions.

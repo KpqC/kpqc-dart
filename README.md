@@ -6,17 +6,11 @@ schemes and the NTRU+ and SMAUG-T key encapsulation mechanisms (KEMs).
 ## Runtime support
 
 - Dart 3.13 or newer
-- Linux, macOS, or Windows
-- A supported C11 toolchain for the target platform
+- Dart VM on Linux, macOS, and Windows
+- JavaScript compilation with the Dart toolchain
 
-The package uses Dart build hooks to compile and bundle its native code. macOS
-on Apple silicon is currently verified locally; desktop CI is configured for
-Linux, macOS, and Windows. Android and iOS build targets are implemented but
-remain unverified. Dart Web is not supported because the implementation uses
-`dart:ffi`.
-
-Use `dart run`, `dart test`, or `dart build cli` so that Dart runs the native
-build hooks. The legacy `dart compile exe` command does not bundle code assets.
+All algorithm cores are implemented in portable Dart. The package has no
+native build step or C toolchain dependency.
 
 ## Install
 
@@ -162,8 +156,8 @@ final KeyEncapsulationAlgorithm kem = ntruplus864;
 
 Inputs and outputs use `Uint8List`. Each algorithm exposes an `id` and a
 `sizes` value. Incorrect key or ciphertext lengths throw
-`ArgumentError`; native failures throw `KpqCException`. Signature verification
-returns `false` for an invalid signature.
+`ArgumentError`; implementation failures throw `KpqCException`. Signature
+verification returns `false` for an invalid signature.
 
 ### Parameter sizes
 
@@ -202,26 +196,27 @@ not equal the sender's shared secret.
 
 ## Known-answer tests
 
-The implementation is tested against all 1,600 KAT records in
-[KpqC/kpqc-test-vectors at commit d75490bf824f](https://github.com/KpqC/kpqc-test-vectors/tree/d75490bf824faa4b148cd0b901a2eb13198fe0da).
-On Linux, with `kpqc-test-vectors` checked out beside `kpqc-dart`, run:
+The portable Dart implementations are tested against the known-answer vectors
+in [KpqC/kpqc-test-vectors at commit d75490bf824f](https://github.com/KpqC/kpqc-test-vectors/tree/d75490bf824faa4b148cd0b901a2eb13198fe0da).
+The test suite validates all 1,600 records across every supported parameter
+set. AIMer signing is computationally expensive in portable Dart, so a full
+known-answer test run can take considerably longer than the regular tests.
+
+With `kpqc-test-vectors` checked out beside `kpqc-dart`, run:
 
 ```sh
-cmake -S . -B build/kat \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DKPQC_TEST_ENTROPY=ON
-cmake --build build/kat --parallel
-python3 -B test/test_kat.py \
-  build/kat/libkpqc_test.so \
-  ../kpqc-test-vectors
+KPQC_TEST_VECTORS=../kpqc-test-vectors dart test \
+  test/aimer_kat_test.dart \
+  test/haetae_kat_test.dart \
+  test/ntruplus_kat_test.dart \
+  test/smaugt_kat_test.dart
 ```
 
 ## Distribution
 
-The published package includes Dart libraries and the bundled native sources.
-Build hooks compile each parameter set with its upstream configuration macros,
-isolate its C symbols, and use Dart 3.13 link-time usage recording to bundle
-only the native assets used by the application.
+The published package contains portable Dart implementations of AIMer, HAETAE,
+NTRU+, and SMAUG-T. No native libraries are downloaded or compiled during
+installation.
 
 `KeyPair.dispose()` and `EncapsulatedSecret.dispose()` overwrite their secret
 byte lists on a best-effort basis. The caller is responsible for clearing the
@@ -229,7 +224,7 @@ list returned directly by `decapsulate`.
 
 ## Building from source
 
-A C11 compiler and the Dart SDK are required for normal development:
+The Dart SDK is the only build dependency required for normal development:
 
 ```sh
 dart pub get
@@ -239,10 +234,10 @@ dart test
 
 ## Security
 
-The native cores are compiled from the upstream algorithm implementations. This
-package has not received an independent security audit and does not provide a
-constant-time execution guarantee. Assess those constraints before using it
-with sensitive production keys.
+The algorithm cores are portable Dart adaptations of the upstream reference
+implementations. This package has not received an independent security audit
+and does not provide a constant-time execution guarantee. Assess those
+constraints before using it with sensitive production keys.
 
 Third-party licenses and attributions are listed in
 [THIRD_PARTY_NOTICES.md](https://github.com/KpqC/kpqc-dart/blob/main/THIRD_PARTY_NOTICES.md).
